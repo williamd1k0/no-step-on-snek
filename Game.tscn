@@ -1,0 +1,7 @@
+[gd_scene format=2]
+
+[node name="Game" type="Node" index="0"]
+
+_sections_unfolded = [ "Cell" ]
+
+
