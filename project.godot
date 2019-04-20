@@ -6,12 +6,20 @@
 ;   [section] ; section goes between []
 ;   param=value ; assign values to parameters
 
-config_version=3
+config_version=4
+
+_global_script_classes=[  ]
+_global_script_class_icons={
+
+}
 
 [application]
 
 config/name="NO STEP ON SNEK"
 run/main_scene="res://Game.tscn"
+boot_splash/image="res://icon.png"
+boot_splash/fullsize=false
+boot_splash/bg_color=Color( 0.678431, 0.85098, 0.447059, 1 )
 config/icon="res://icon.png"
 
 [autoload]
@@ -49,5 +57,9 @@ texture={
 
 [rendering]
 
+quality/driver/driver_name="GLES2"
+quality/2d/gles2_use_nvidia_rect_flicker_workaround=true
+quality/2d/use_pixel_snap=true
 environment/default_clear_color=Color( 0.677186, 0.851563, 0.44574, 1 )
 environment/default_environment="res://default_env.tres"
+quality/dynamic_fonts/use_oversampling=false

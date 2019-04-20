@@ -4,50 +4,66 @@ var snek_dir = Vector2(-1, 0)
 var updated_dir = Vector2(-1, 0)
 var snek_body
 var meats = []
-var time_count = 0
 var eat_meat = []
+var time_count = 0
+var update_freq = 0.1
 var snek_lif = true
 var hiss_time = 0
 var hisssss = [0, 1]
 var show_hiss = false
-
 var map = TileMap.new()
 
 func _ready():
-	call_deferred('sssstart')
+	get_tree().set_screen_stretch(
+		get_tree().STRETCH_MODE_VIEWPORT,
+		get_tree().STRETCH_ASPECT_KEEP,
+		Vector2(64, 64)
+	)
+	VisualServer.set_default_clear_color(Color('#add972'))
+	OS.window_size = Vector2(64, 64)*3
+	OS.center_window()
+	call_deferred('init_map')
 
-func sssstart():
+func init_map():
 	map.cell_size = Vector2(2, 2)
 	get_tree().root.add_child(map)
 	map.tile_set = create_tile_ssset()
+	call_deferred('sssstart')
+
+func sssstart():
+	update_freq = 0.1
+	snek_dir = Vector2(-1, 0)
+	updated_dir = Vector2(-1, 0)
+	meats = []
+	eat_meat = []
 	snek_body = [map.world_to_map(Vector2(32, 32))]
 	map.clear()
 	spawn_meat()
 	for i in range(5):
 		snek_body.append(snek_body[0]-snek_dir*(i+1))
+	snek_lif = true
 	update_snek_body()
 
 func create_tile_ssset():
-	var shit = TileSet.new()
+	var sheeet = TileSet.new()
 	var tex = create_texxxture()
-	
-	# hiss0
-	shit.create_tile(0)
-	shit.tile_set_texture(0, tex)
-	shit.tile_set_region(0, Rect2( 0, 0, 2, 2 ))
-	# hiss1
-	shit.create_tile(1)
-	shit.tile_set_texture(1, tex)
-	shit.tile_set_region(1, Rect2( 2, 0, 2, 2 ))
-	# snek
-	shit.create_tile(2)
-	shit.tile_set_texture(2, tex)
-	shit.tile_set_region(2, Rect2( 4, 0, 2, 2 ))
-	# met
-	shit.create_tile(3)
-	shit.tile_set_texture(3, tex)
-	shit.tile_set_region(3, Rect2( 6, 0, 2, 2 ))
-	return shit
+	# hisss0
+	sheeet.create_tile(0)
+	sheeet.tile_set_texture(0, tex)
+	sheeet.tile_set_region(0, Rect2( 0, 0, 2, 2 ))
+	# hisss1
+	sheeet.create_tile(1)
+	sheeet.tile_set_texture(1, tex)
+	sheeet.tile_set_region(1, Rect2( 2, 0, 2, 2 ))
+	# snekk
+	sheeet.create_tile(2)
+	sheeet.tile_set_texture(2, tex)
+	sheeet.tile_set_region(2, Rect2( 4, 0, 2, 2 ))
+	# meet
+	sheeet.create_tile(3)
+	sheeet.tile_set_texture(3, tex)
+	sheeet.tile_set_region(3, Rect2( 6, 0, 2, 2 ))
+	return sheeet
 
 func create_texxxture():
 	var img = Image.new()
@@ -72,7 +88,7 @@ func create_texxxture():
 func _process(delta):
 	if snek_lif:
 		time_count += delta
-		if time_count >= 0.1:
+		if time_count >= update_freq:
 			time_count = 0
 			if updated_dir != snek_dir:
 				snek_dir = updated_dir
@@ -102,6 +118,8 @@ func _input(event):
 	if next_dir != null:
 		if next_dir != snek_dir*-1:
 			updated_dir = next_dir
+	if not snek_lif and event.is_action_pressed('ui_cancel'):
+		sssstart()
 
 func move_snek():
 	snek_body.push_front(snek_body[0]+snek_dir)
@@ -112,17 +130,18 @@ func move_snek():
 			snek_body.append(snek_body[-1]+snek_dir)
 			
 	if snek_body.count(snek_body[0]) > 1:
-		print('dead')
 		snek_lif = false
-	if snek_body[0].x < 0 or snek_body[0].x > 64/2:
+	elif snek_body[0].x < 0 or snek_body[0].x > 64/2:
 		snek_lif = false
-	if snek_body[0].y < 0 or snek_body[0].y > 64/2:
+	elif snek_body[0].y < 0 or snek_body[0].y > 64/2:
 		snek_lif = false
-	if snek_body[0] in meats:
+	elif snek_body[0] in meats:
+		update_freq /= 1.05
 		meats.remove(meats.find(snek_body[0]))
 		eat_meat.append(snek_body[0])
 		spawn_meat()
-	update_snek_body()
+	if snek_lif:
+		update_snek_body()
 
 func update_snek_body():
 	map.clear()
@@ -138,7 +157,6 @@ func update_snek_body():
 func spawn_meat():
 	var m = map.world_to_map(Vector2(64, 64))
 	var pos = snek_body[0]
-	while pos in snek_body:
+	while pos in snek_body: # XXX
 		pos = Vector2(rand_range(0, int(m.x)), rand_range(0, int(m.y))).floor()
 	meats.append(pos)
-
